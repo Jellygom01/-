@@ -424,3 +424,57 @@ kbd { font: 11px var(--mono); color: #85877d; background: #f7f7f5; border: 1px s
     padding: 14px;
   }
 }
+
+/* =========================
+   프롬프트 이미지 미리보기
+========================= */
+
+.prompt-card-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 0 0 18px;
+  background: #f6f6f4;
+}
+
+.prompt-card-image[hidden],
+.modal-image[hidden],
+.admin-image-preview[hidden] {
+  display: none !important;
+}
+
+.modal-image {
+  display: block;
+  width: 100%;
+  max-height: 440px;
+  object-fit: contain;
+  margin: 18px 0;
+  border-radius: 10px;
+  background: #f6f6f4;
+}
+
+#adminPanel #promptForm input[type="file"] {
+  padding: 10px !important;
+  min-height: auto;
+  background: #fff !important;
+}
+
+.admin-image-preview {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f6f6f4;
+}
+
+.image-help {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 8px 0 0;
+}
