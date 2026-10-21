@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -92,6 +93,7 @@
     </footer>
   </div>
 
+  <!-- 프롬프트 상세 창 -->
   <div id="detailModal" class="modal-backdrop" hidden>
     <section class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-topline">
@@ -128,37 +130,64 @@
 
       <form id="adminLoginForm">
         <label for="adminEmail">이메일</label>
-        <input
-          id="adminEmail"
-          name="email"
-          type="email"
-          autocomplete="username"
-          placeholder="관리자 이메일"
-          required
-        >
+        <input id="adminEmail" name="email" type="email" autocomplete="username" placeholder="관리자 이메일" required>
 
         <label for="adminPassword">비밀번호</label>
-        <input
-          id="adminPassword"
-          name="password"
-          type="password"
-          autocomplete="current-password"
-          placeholder="비밀번호"
-          required
-        >
+        <input id="adminPassword" name="password" type="password" autocomplete="current-password" placeholder="비밀번호" required>
 
         <p id="adminError" role="alert" hidden></p>
 
-        <button class="button button-dark" type="submit" id="adminLoginSubmit">
-          로그인
-        </button>
+        <button class="button button-dark" type="submit" id="adminLoginSubmit">로그인</button>
       </form>
     </section>
   </div>
+
+  <!-- 관리자 프롬프트 관리 화면 -->
+  <section id="adminPanel" class="archive-section" hidden>
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">ADMIN WORKSPACE</div>
+        <h2>프롬프트 관리</h2>
+      </div>
+    </div>
+
+    <p>관리자 전용 등록 및 수정 화면</p>
+
+    <form id="promptForm">
+      <input type="hidden" id="promptId">
+
+      <label for="promptTitle">제목</label>
+      <input id="promptTitle" type="text" required>
+
+      <label for="promptCategory">카테고리</label>
+      <input id="promptCategory" type="text" placeholder="예: artist" required>
+
+      <label for="promptDescription">설명</label>
+      <textarea id="promptDescription" rows="3"></textarea>
+
+      <label for="promptText">프롬프트</label>
+      <textarea id="promptText" rows="5" required></textarea>
+
+      <label for="promptNegative">네거티브 프롬프트</label>
+      <textarea id="promptNegative" rows="3"></textarea>
+
+      <label for="promptModel">모델</label>
+      <input id="promptModel" type="text" placeholder="예: Illustrious">
+
+      <label for="promptTags">태그 (쉼표로 구분)</label>
+      <input id="promptTags" type="text" placeholder="예: 작가 태그, 눈">
+
+      <button type="submit" id="promptSave">프롬프트 등록</button>
+      <button type="button" id="promptCancel">초기화</button>
+    </form>
+
+    <p id="promptAdminMessage" role="status"></p>
+    <div id="adminPromptList"></div>
+  </section>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./app.js"></script>
 </body>
-  </html>
+</html>
