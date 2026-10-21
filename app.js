@@ -354,3 +354,88 @@ document.addEventListener("keydown", (event) => {
 });
 
 init();
+
+const adminModal = document.querySelector("#adminModal");
+const adminOpen = document.querySelector("#adminOpen");
+const adminClose = document.querySelector("#adminClose");
+const adminLoginForm = document.querySelector("#adminLoginForm");
+const adminError = document.querySelector("#adminError");
+const adminLoginSubmit = document.querySelector("#adminLoginSubmit");
+
+async function updateAdminButton() {
+  const { data } = await db.auth.getSession();
+
+  adminOpen.textContent = data.session
+    ? "관리자 로그아웃"
+    : "관리자 로그인";
+}
+
+adminOpen.addEventListener("click", async () => {
+  const { data } = await db.auth.getSession();
+
+  if (data.session) {
+    const { error } = await db.auth.signOut();
+
+    if (error) {
+      showToast("로그아웃에 실패했어요.");
+      return;
+    }
+
+    await updateAdminButton();
+    showToast("로그아웃했어요.");
+    return;
+  }
+
+  adminError.hidden = true;
+  adminModal.hidden = false;
+  document.body.style.overflow = "hidden";
+});
+
+adminClose.addEventListener("click", () => {
+  adminModal.hidden = true;
+  document.body.style.overflow = "";
+});
+
+adminModal.addEventListener("click", (event) => {
+  if (event.target === adminModal) {
+    adminModal.hidden = true;
+    document.body.style.overflow = "";
+  }
+});
+
+adminLoginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  adminError.hidden = true;
+  adminLoginSubmit.disabled = true;
+  adminLoginSubmit.textContent = "로그인 중...";
+
+  const email = document.querySelector("#adminEmail").value.trim();
+  const password = document.querySelector("#adminPassword").value;
+
+  try {
+    const { error } = await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    adminModal.hidden = true;
+    document.body.style.overflow = "";
+
+    adminLoginForm.reset();
+    await updateAdminButton();
+
+    showToast("로그인 성공! 관리자 메뉴는 다음 단계에서 연결할게요.");
+  } catch (error) {
+    adminError.textContent =
+      "로그인에 실패했어요. 이메일과 비밀번호를 확인해 주세요.";
+    adminError.hidden = false;
+  } finally {
+    adminLoginSubmit.disabled = false;
+    adminLoginSubmit.textContent = "로그인";
+  }
+});
+
+updateAdminButton();
