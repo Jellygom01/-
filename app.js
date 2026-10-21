@@ -659,8 +659,8 @@ promptForm.addEventListener("submit", async (event) => {
         .from("prompts")
         .update(payload)
         .eq("id", id)
-        .select("id, image_url")
-        .single();
+        .select("id, image_url");
+        
     } else {
       result = await db
   .from("prompts")
