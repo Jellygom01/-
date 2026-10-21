@@ -1,143 +1,117 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f7f7f4">
-<title>Prompt Archive</title>
-<style>
-:root{--bg:#f7f7f4;--paper:#fff;--ink:#242620;--muted:#77796f;--line:#e5e5de;--accent:#68735c;--soft:#eef0e9;--danger:#9a4949}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,textarea,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;color:var(--ink)}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}button:active{transform:translateY(1px)}
-header{max-width:1120px;margin:auto;padding:30px 20px 18px}header .eyebrow{font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}h1{font-size:clamp(28px,5vw,42px);letter-spacing:-.045em;line-height:1.1;margin:8px 0}header p{color:var(--muted);margin:8px 0 0}
-main{max-width:1120px;margin:auto;padding:0 20px 60px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.search{flex:1;min-width:200px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff}
-.tabs{display:flex;gap:7px;overflow:auto;padding:2px 0 12px;margin-bottom:12px}.tab{white-space:nowrap;background:transparent}.tab.active{background:var(--soft);border-color:#d6dacd;color:#414a37}
-.meta{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px;margin:5px 0 14px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{background:var(--paper);border:1px solid var(--line);border-radius:15px;overflow:hidden;min-width:0}.thumb{width:100%;aspect-ratio:4/3;object-fit:cover;background:#eeeee8;display:block}.thumb.empty{display:grid;place-items:center;color:#92958a;font-size:12px}.cardbody{padding:14px}.cardtop{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}.card h2{font-size:16px;line-height:1.35;margin:0 0 6px;overflow-wrap:anywhere}.desc{font-size:13px;color:var(--muted);margin:0 0 12px;overflow-wrap:anywhere}.chips{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 12px}.chip{font-size:11px;color:#5c6254;background:var(--soft);padding:3px 8px;border-radius:999px}.actions{display:flex;gap:6px;flex-wrap:wrap}.actions button{font-size:12px;padding:7px 9px}.heart{font-size:19px;padding:2px 7px;border:0;background:transparent}.heart.on{color:#b34d5a}.empty-state{padding:45px 15px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px}
-.panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px;margin:16px 0}.panel h2{font-size:17px;margin:0 0 10px}.hidden{display:none!important}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff;color:var(--ink)}.field textarea{min-height:90px;resize:vertical}.wide{grid-column:1/-1}.adminbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.note{font-size:12px;color:var(--muted)}.preview{width:100%;max-height:240px;object-fit:contain;background:#f2f2ed;border-radius:10px}.modalback{position:fixed;inset:0;background:#17191277;display:grid;place-items:center;padding:15px;z-index:10}.modal{background:#fff;border-radius:16px;padding:18px;width:min(620px,100%);max-height:90vh;overflow:auto}.modal h2{margin-top:0}.modal pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f7f4;border-radius:10px;padding:12px;font:13px/1.5 ui-monospace,monospace}.modalhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
-footer{max-width:1120px;margin:auto;padding:20px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
-@media(max-width:780px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){header{padding:24px 16px 14px}main{padding:0 16px 45px}.grid{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.wide{grid-column:auto}.toolbar button{padding:10px}.card{display:grid;grid-template-columns:112px minmax(0,1fr)}.thumb{height:100%;min-height:150px;aspect-ratio:auto}.cardbody{padding:12px}.card h2{font-size:15px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5f0">
+  <meta name="description" content="AI 일러스트 프롬프트를 검색하고, 탐색하고, 복사하는 공개 아카이브.">
+  <title>Prompt Archive · AI 일러스트 프롬프트 아카이브</title>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<header>
-  <div class="eyebrow">Personal prompt library</div>
-  <h1>Prompt Archive</h1>
-  <p>이미지 프롬프트와 작가 태그를 차곡차곡 모으는 작은 아카이브.</p>
-</header>
-<main>
-  <div class="toolbar">
-    <input id="search" class="search" placeholder="프롬프트, 태그, 제목 검색…" aria-label="검색">
-    <button id="favoritesOnly">♡ 즐겨찾기</button>
-    <button id="adminToggle">관리 도구</button>
-  </div>
-  <div id="tabs" class="tabs"></div>
-  <div class="meta"><span id="resultCount">0개</span><span>카드를 눌러 상세 내용 보기</span></div>
-  <section id="cards" class="grid"></section>
-  <div id="empty" class="empty-state hidden">검색 결과가 없어! 다른 단어로 검색해 봐.</div>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Prompt Archive 홈">
+        <span class="brand-name">Prompt Archive</span>
+      </a>
+      <nav class="top-nav" aria-label="주 메뉴">
+        <a href="#archive">아카이브</a>
+        <a href="#about">이용 안내</a>
+      </nav>
+    </header>
 
-  <section id="adminPanel" class="panel hidden">
-    <div class="adminbar"><h2>자료 관리</h2><button id="closeAdmin">닫기</button></div>
-    <p class="note">변경 사항은 이 기기의 브라우저에 자동 저장돼. 다른 방문자에게 공개하려면 <b>내보내기</b> 후 데이터 파일을 GitHub에 반영해야 해. 이 정적 사이트에는 계정 인증 기능이 없어 관리 도구는 보안 잠금 장치가 아니야.</p>
-    <div class="toolbar">
-      <button class="primary" id="newItem">＋ 새 자료</button>
-      <button id="exportData">자료 내보내기</button>
-      <label><button type="button" id="importTrigger">자료 가져오기</button><input id="importFile" type="file" accept="application/json,.json" class="hidden"></label>
-      <button id="resetData">기본 자료로 초기화</button>
-    </div>
-    <form id="itemForm" class="hidden">
-      <input id="itemId" type="hidden">
-      <div class="formgrid">
-        <label class="field">제목<input id="title" required placeholder="예: Soft watercolor eyes"></label>
-        <label class="field">카테고리<input id="category" required list="categoryList" placeholder="예: 눈"><datalist id="categoryList"></datalist></label>
-        <label class="field wide">설명<input id="description" placeholder="간단한 설명"></label>
-        <label class="field wide">태그 (쉼표로 구분)<input id="tags" placeholder="eyes, watercolor, soft light"></label>
-        <label class="field wide">프롬프트<textarea id="prompt" required placeholder="복사할 프롬프트를 입력해 줘"></textarea></label>
-        <label class="field wide">네거티브 프롬프트 (선택)<textarea id="negative" placeholder="negative prompt"></textarea></label>
-        <label class="field wide">미리보기 이미지<input id="imageFile" type="file" accept="image/*"><span class="note">이미지는 브라우저에서 줄여 저장돼. 내보낸 JSON 파일에 이미지가 포함되므로 파일 크기가 커질 수 있어.</span></label>
-        <img id="imagePreview" class="preview wide hidden" alt="이미지 미리보기">
+    <main>
+      <section class="hero">
+        <div class="eyebrow">OPEN PROMPT LIBRARY</div>
+        <h1>상상에 필요한 말을<br><em>모아두는 곳.</em></h1>
+        <p class="hero-copy">AI 일러스트 프롬프트를 발견하고, 조합하고, 바로 복사하세요.<br class="desktop-only"> 마음에 드는 표현 하나가 다음 그림의 시작이 될 수 있어요.</p>
+        <div class="hero-search" role="search">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="searchInput" type="search" placeholder="프롬프트, 태그, 분위기를 검색하세요" autocomplete="off" aria-label="프롬프트 검색">
+          <kbd>/</kbd>
+          <button id="clearSearch" class="clear-search" type="button" aria-label="검색어 지우기" hidden>×</button>
+        </div>
+        <div class="hero-meta">
+          <span><strong id="totalCount">0</strong>개의 프롬프트</span>
+          <span class="meta-divider">/</span>
+          <span><strong id="categoryCount">0</strong>개 분류</span>
+          <span class="meta-note">무료로 탐색 · 로그인 불필요</span>
+        </div>
+      </section>
+
+      <section class="archive-section" id="archive">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">THE COLLECTION</div>
+            <h2>프롬프트 둘러보기</h2>
+          </div>
+          <label class="sort-control">
+            <span>정렬</span>
+            <select id="sortSelect" aria-label="정렬 방식">
+              <option value="newest">최근 등록순</option>
+              <option value="title">이름순</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="categoryTabs" class="category-tabs" role="tablist" aria-label="프롬프트 분류"></div>
+
+        <div class="results-line">
+          <p id="resultSummary" aria-live="polite">프롬프트를 불러오는 중…</p>
+          <button id="resetFilters" class="text-button" type="button">필터 초기화 ↗</button>
+        </div>
+        <div id="promptGrid" class="prompt-grid"></div>
+        <div id="emptyState" class="empty-state" hidden>
+          <span class="empty-symbol">⌕</span>
+          <h3>아직 찾는 표현이 없어요.</h3>
+          <p>검색어를 바꾸거나 다른 분류를 살펴보세요.</p>
+          <button id="emptyReset" class="button button-dark" type="button">전체 프롬프트 보기</button>
+        </div>
+        <div class="load-error" id="loadError" hidden>
+          데이터를 불러오지 못했어요. 로컬 파일을 직접 열었다면 GitHub Pages에 배포한 주소에서 다시 확인해 주세요.
+        </div>
+      </section>
+
+      <section class="about-section" id="about">
+        <div>
+          <div class="eyebrow">ABOUT THIS ARCHIVE</div>
+          <h2>표현을 모으고,<br class="mobile-only"> 가능성을 넓히기.</h2>
+          <p>이곳은 AI 일러스트 제작에 활용할 수 있는 텍스트 프롬프트를 정리한 공개 아카이브입니다. 프롬프트는 모델과 설정에 따라 다르게 작동할 수 있으니, 필요한 부분을 자유롭게 조합해 보세요.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <a class="brand footer-brand" href="./"><span class="brand-name">Prompt Archive</span></a>
+      <p>AI illustration prompt collection.</p>
+      <a href="#about">이용 안내 ↑</a>
+    </footer>
+  </div>
+
+  <div id="detailModal" class="modal-backdrop" hidden>
+    <section class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-topline">
+        <span class="modal-label">PROMPT DETAIL</span>
+        <button id="closeModal" class="icon-button" type="button" aria-label="상세 창 닫기">×</button>
       </div>
-      <div class="toolbar"><button class="primary" type="submit">저장</button><button type="button" id="cancelEdit">취소</button></div>
-    </form>
-    <div id="adminItems"></div>
-  </section>
-</main>
-<footer>Prompt Archive · 개인용 프롬프트 정리 도구</footer>
-<div id="modalRoot"></div>
-<script>
-const KEY='promptArchive.v2', FAVKEY='promptArchive.favs.v2';
-const defaults=[
- {id:'sample-1',title:'Soft watercolor eyes',category:'눈',description:'부드러운 수채화 느낌의 눈 표현 예시',tags:['eyes','watercolor','soft'],prompt:'delicate eyes, soft watercolor shading, subtle highlights, fine eyelashes, gentle color transitions',negative:'low quality, blurry, poorly drawn eyes',image:''},
- {id:'sample-2',title:'Flowing hair strands',category:'머리카락',description:'가닥 표현과 은은한 광택',tags:['hair','strands','shine'],prompt:'flowing hair, fine individual strands, soft rim light, delicate highlights, detailed hair texture',negative:'tangled hair, messy lines, flat shading',image:''},
- {id:'sample-3',title:'Quiet evening light',category:'분위기',description:'차분한 저녁빛과 부드러운 대비',tags:['lighting','evening','mood'],prompt:'quiet evening atmosphere, soft ambient light, muted palette, delicate shadows, cinematic composition',negative:'oversaturated, harsh shadows, blown highlights',image:''}
-];
-let items=loadItems(), activeCategory='전체', favoritesOnly=false, imageData='';
-function loadItems(){try{const v=localStorage.getItem(KEY);return v?JSON.parse(v):structuredClone(defaults)}catch{return structuredClone(defaults)}}
-function save(){localStorage.setItem(KEY,JSON.stringify(items));render()}
-function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function getFavs(){try{return JSON.parse(localStorage.getItem(FAVKEY)||'[]')}catch{return []}}
-function setFavs(v){localStorage.setItem(FAVKEY,JSON.stringify(v))}
-function renderTabs(){
- const cats=['전체',...new Set(items.map(x=>x.category).filter(Boolean))];
- if(!cats.includes(activeCategory))activeCategory='전체';
- document.getElementById('tabs').innerHTML=cats.map(c=>`<button class="tab ${c===activeCategory?'active':''}" data-cat="${esc(c)}">${esc(c)} <span class="note">${c==='전체'?items.length:items.filter(x=>x.category===c).length}</span></button>`).join('');
- document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{activeCategory=b.dataset.cat;render()});
- document.getElementById('categoryList').innerHTML=cats.filter(c=>c!=='전체').map(c=>`<option value="${esc(c)}">`).join('');
-}
-function render(){
- renderTabs();const q=document.getElementById('search').value.trim().toLowerCase(),favs=getFavs();
- const shown=items.filter(x=>(activeCategory==='전체'||x.category===activeCategory)&&(!favoritesOnly||favs.includes(x.id))&&(!q||[x.title,x.category,x.description,x.prompt,x.negative,(x.tags||[]).join(' ')].join(' ').toLowerCase().includes(q)));
- document.getElementById('resultCount').textContent=`${shown.length} / ${items.length}개`;
- document.getElementById('cards').innerHTML=shown.map(x=>`<article class="card">
- ${x.image?`<img class="thumb" src="${x.image}" alt="${esc(x.title)}">`:`<div class="thumb empty">NO IMAGE</div>`}
- <div class="cardbody"><div class="cardtop"><div><h2>${esc(x.title)}</h2><div class="note">${esc(x.category)}</div></div><button class="heart ${favs.includes(x.id)?'on':''}" data-fav="${esc(x.id)}" aria-label="즐겨찾기">${favs.includes(x.id)?'♥':'♡'}</button></div>
- <p class="desc">${esc(x.description||'')}</p><div class="chips">${(x.tags||[]).slice(0,4).map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>
- <div class="actions"><button data-detail="${esc(x.id)}">상세 보기</button><button data-copy="${esc(x.id)}">프롬프트 복사</button></div></div></article>`).join('');
- document.getElementById('empty').classList.toggle('hidden',shown.length!==0);
- document.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>{let a=getFavs();a=a.includes(b.dataset.fav)?a.filter(i=>i!==b.dataset.fav):[...a,b.dataset.fav];setFavs(a);render()});
- document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>copyPrompt(b.dataset.copy));
- document.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>showDetail(b.dataset.detail));
- renderAdminList();
-}
-async function copyText(t){try{await navigator.clipboard.writeText(t);alert('복사했어!')}catch{const ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();alert('복사했어!')}}
-function copyPrompt(id){const x=items.find(a=>a.id===id);if(x)copyText(x.prompt)}
-function showDetail(id){const x=items.find(a=>a.id===id);if(!x)return;document.getElementById('modalRoot').innerHTML=`<div class="modalback" id="backdrop"><div class="modal"><div class="modalhead"><h2>${esc(x.title)}</h2><button id="modalClose">닫기</button></div><p class="note">${esc(x.category)} · ${(x.tags||[]).map(esc).join(', ')}</p>${x.image?`<img class="preview" src="${x.image}" alt="${esc(x.title)}">`:''}<p>${esc(x.description||'')}</p><b>Prompt</b><pre>${esc(x.prompt)}</pre><button class="primary" id="copyMain">프롬프트 복사</button>${x.negative?`<p><b>Negative prompt</b></p><pre>${esc(x.negative)}</pre><button id="copyNeg">네거티브 복사</button>`:''}</div></div>`;
- document.getElementById('modalClose').onclick=()=>document.getElementById('modalRoot').innerHTML='';
- document.getElementById('backdrop').onclick=e=>{if(e.target.id==='backdrop')document.getElementById('modalRoot').innerHTML=''};
- document.getElementById('copyMain').onclick=()=>copyText(x.prompt);
- if(x.negative)document.getElementById('copyNeg').onclick=()=>copyText(x.negative)}
-document.getElementById('search').addEventListener('input',render);
-document.getElementById('favoritesOnly').onclick=()=>{favoritesOnly=!favoritesOnly;document.getElementById('favoritesOnly').textContent=favoritesOnly?'♥ 즐겨찾기만 보기':'♡ 즐겨찾기';render()};
-document.getElementById('adminToggle').onclick=()=>document.getElementById('adminPanel').classList.toggle('hidden');
-document.getElementById('closeAdmin').onclick=()=>document.getElementById('adminPanel').classList.add('hidden');
-document.getElementById('newItem').onclick=()=>openForm();
-document.getElementById('cancelEdit').onclick=()=>{document.getElementById('itemForm').classList.add('hidden');imageData=''};
-function openForm(x=null){
- const f=document.getElementById('itemForm');f.classList.remove('hidden');f.reset();imageData=x?.image||'';
- document.getElementById('itemId').value=x?.id||'';
- ['title','category','description','prompt','negative'].forEach(k=>document.getElementById(k).value=x?.[k]||'');
- document.getElementById('tags').value=(x?.tags||[]).join(', ');
- const im=document.getElementById('imagePreview');im.src=imageData;im.classList.toggle('hidden',!imageData);
- f.scrollIntoView({behavior:'smooth',block:'start'});
-}
-document.getElementById('imageFile').onchange=async e=>{
- const file=e.target.files[0];if(!file)return;
- if(!file.type.startsWith('image/')){alert('이미지 파일을 선택해 줘.');return}
- try{imageData=await compressImage(file);const im=document.getElementById('imagePreview');im.src=imageData;im.classList.remove('hidden')}catch{alert('이미지를 읽지 못했어. 다른 파일로 시도해 줘.')}
-};
-function compressImage(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=reject;reader.onload=()=>{const img=new Image();img.onerror=reject;img.onload=()=>{const max=1000,scale=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))};img.src=reader.result};reader.readAsDataURL(file)})}
-document.getElementById('itemForm').onsubmit=e=>{
- e.preventDefault();const id=document.getElementById('itemId').value||'p-'+Date.now();
- const old=items.find(x=>x.id===id);
- const x={id,title:document.getElementById('title').value.trim(),category:document.getElementById('category').value.trim(),description:document.getElementById('description').value.trim(),tags:document.getElementById('tags').value.split(',').map(s=>s.trim()).filter(Boolean),prompt:document.getElementById('prompt').value.trim(),negative:document.getElementById('negative').value.trim(),image:imageData||old?.image||''};
- items=old?items.map(y=>y.id===id?x:y):[x,...items];save();e.target.classList.add('hidden');imageData='';alert('이 기기에 저장했어! 공개 사이트에도 반영하려면 자료 내보내기를 한 뒤 GitHub에 반영해야 해.')};
-function renderAdminList(){const el=document.getElementById('adminItems');if(!el)return;el.innerHTML='<h3>등록된 자료</h3>'+items.map(x=>`<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:10px 0"><div style="min-width:0"><b>${esc(x.title)}</b><div class="note">${esc(x.category)}</div></div><div style="display:flex;gap:5px"><button data-edit="${esc(x.id)}">수정</button><button data-delete="${esc(x.id)}">삭제</button></div></div>`).join('');
- el.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openForm(items.find(x=>x.id===b.dataset.edit)));
- el.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(confirm('이 자료를 삭제할까?')){items=items.filter(x=>x.id!==b.dataset.delete);setFavs(getFavs().filter(id=>id!==b.dataset.delete));save()}})}
-document.getElementById('exportData').onclick=()=>{const blob=new Blob([JSON.stringify(items,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='prompts.json';a.click();URL.revokeObjectURL(url)};
-document.getElementById('importTrigger').onclick=()=>document.getElementById('importFile').click();
-document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v)||!v.every(x=>x.title&&x.prompt&&x.category))throw Error();if(confirm('현재 자료를 가져온 파일의 내용으로 교체할까?')){items=v;save();alert('자료를 가져왔어!')}}catch{alert('올바른 prompts.json 파일이 아니야.')}e.target.value=''};
-document.getElementById('resetData').onclick=()=>{if(confirm('현재 기기에 저장된 자료를 기본 예시로 바꿀까?')){items=structuredClone(defaults);save()}};
-render();
-</script>
+      <div class="modal-category" id="modalCategory"></div>
+      <h2 id="modalTitle"></h2>
+      <p id="modalDescription" class="modal-description"></p>
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="prompt-block">
+        <div class="block-heading"><span>POSITIVE PROMPT</span><button id="copyPrompt" class="copy-small" type="button">복사 ↗</button></div>
+        <pre id="modalPrompt"></pre>
+      </div>
+      <div class="prompt-block" id="negativeBlock" hidden>
+        <div class="block-heading"><span>NEGATIVE PROMPT</span><button id="copyNegative" class="copy-small" type="button">복사 ↗</button></div>
+        <pre id="modalNegative"></pre>
+      </div>
+      <div class="modal-tags" id="modalTags"></div>
+      <p class="modal-footnote">프롬프트를 복사해 원하는 생성 도구에서 조정해 사용하세요.</p>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
 </body>
 </html>
