@@ -653,7 +653,7 @@ promptForm.addEventListener("submit", async (event) => {
 
     // 새 자료 등록 또는 기존 자료 수정
     let result;
-let result;
+
 
     if (id) {
       result = await db
