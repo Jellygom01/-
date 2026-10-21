@@ -19,9 +19,8 @@ const toast = $("#toast");
 const modal = $("#detailModal");
 
 const SUPABASE_URL = "https://snisuqcbgiemlecuhtaz.supabase.co";
-
-// 기존 app.js에 있던 공개 키를 이 문자열 안에 붙여 넣으세요.
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_7TiUfgpWgZxGdL0W42DlGg_3UnJZ6QB";
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_7TiUfgpWgZxGdL0W42DlGg_3UnJZ6QB";
 
 const db = window.supabase.createClient(
   SUPABASE_URL,
@@ -131,6 +130,17 @@ function renderPrompts() {
 
   promptGrid.innerHTML = prompts.map((prompt) => `
     <article class="prompt-card">
+      ${
+        prompt.image_url
+          ? `<img
+               class="card-image"
+               src="${escapeHtml(prompt.image_url)}"
+               alt="${escapeHtml(prompt.title || "프롬프트 이미지")}"
+               loading="lazy"
+             >`
+          : ""
+      }
+
       <div class="card-top">
         <span class="card-category">
           ${escapeHtml(categoryName(prompt.category))}
@@ -204,6 +214,45 @@ async function copyText(text) {
   }
 }
 
+// 이미지 파일을 Supabase Storage에 업로드하고 공개 주소를 반환
+async function uploadPromptImage(file) {
+  if (!file) return null;
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error("JPG, PNG, WebP, GIF 이미지 파일만 업로드할 수 있어요.");
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("이미지는 5MB 이하로 선택해 주세요.");
+  }
+
+  const safeName = file.name.replace(/[^\w.-]/g, "_");
+  const path = `${Date.now()}_${safeName}`;
+
+  const { error } = await db.storage
+    .from("prompt-images")
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type
+    });
+
+  if (error) throw error;
+
+  const { data } = db.storage
+    .from("prompt-images")
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+}
+
 function openDetail(promptId) {
   const prompt = state.prompts.find((item) => item.id === promptId);
   if (!prompt) return;
@@ -213,6 +262,18 @@ function openDetail(promptId) {
   $("#modalCategory").textContent = categoryName(prompt.category);
   $("#modalTitle").textContent = prompt.title;
   $("#modalDescription").textContent = prompt.description || "";
+
+  const modalImage = $("#modalImage");
+
+  if (prompt.image_url) {
+    modalImage.src = prompt.image_url;
+    modalImage.alt = prompt.title || "프롬프트 이미지";
+    modalImage.hidden = false;
+  } else {
+    modalImage.removeAttribute("src");
+    modalImage.alt = "";
+    modalImage.hidden = true;
+  }
 
   $("#modalMeta").innerHTML = [
     prompt.model ? `<span>${escapeHtml(prompt.model)}</span>` : "",
@@ -380,10 +441,55 @@ const promptSave = $("#promptSave");
 const promptCancel = $("#promptCancel");
 const promptAdminMessage = $("#promptAdminMessage");
 
+const promptImageInput = $("#promptImage");
+const promptImageUrlInput = $("#promptImageUrl");
+const promptImagePreview = $("#promptImagePreview");
+
 function setAdminPanelVisible(visible) {
   adminPanel.hidden = !visible;
   adminPanel.style.display = visible ? "" : "none";
 }
+
+// 선택한 이미지의 미리보기
+promptImageInput.addEventListener("change", () => {
+  const file = promptImageInput.files[0];
+
+  if (!file) {
+    const existingUrl = promptImageUrlInput.value;
+
+    if (existingUrl) {
+      promptImagePreview.src = existingUrl;
+      promptImagePreview.hidden = false;
+    } else {
+      promptImagePreview.removeAttribute("src");
+      promptImagePreview.hidden = true;
+    }
+
+    return;
+  }
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    promptImageInput.value = "";
+    showToast("JPG, PNG, WebP, GIF 파일을 선택해 주세요.");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    promptImageInput.value = "";
+    showToast("이미지는 5MB 이하로 선택해 주세요.");
+    return;
+  }
+
+  promptImagePreview.src = URL.createObjectURL(file);
+  promptImagePreview.hidden = false;
+});
 
 async function updateAdminButton() {
   const { data, error } = await db.auth.getSession();
@@ -481,6 +587,9 @@ adminLoginForm.addEventListener("submit", async (event) => {
 function resetPromptForm() {
   promptForm.reset();
   promptIdInput.value = "";
+  promptImageUrlInput.value = "";
+  promptImagePreview.removeAttribute("src");
+  promptImagePreview.hidden = true;
   promptSave.textContent = "프롬프트 등록";
   promptAdminMessage.textContent = "";
 }
@@ -505,25 +614,38 @@ promptForm.addEventListener("submit", async (event) => {
     category.name === rawCategory
   );
 
-  const payload = {
-    title: promptTitleInput.value.trim(),
-    category: matchedCategory ? matchedCategory.id : rawCategory,
-    description: promptDescriptionInput.value.trim(),
-    prompt: promptTextInput.value.trim(),
-    negative_prompt: promptNegativeInput.value.trim(),
-    model: promptModelInput.value.trim(),
-    tags: promptTagsInput.value
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter(Boolean)
-  };
-
   const id = promptIdInput.value;
+
   promptSave.disabled = true;
   promptSave.textContent = id ? "수정 중..." : "등록 중...";
   promptAdminMessage.textContent = "";
 
   try {
+    let imageUrl = promptImageUrlInput.value.trim();
+    const selectedFile = promptImageInput.files[0];
+
+    // 새 이미지를 골랐다면 업로드하고 주소를 받음
+    if (selectedFile) {
+      promptAdminMessage.textContent = "이미지를 업로드하고 있어요...";
+      imageUrl = await uploadPromptImage(selectedFile);
+    }
+
+    const payload = {
+      title: promptTitleInput.value.trim(),
+      category: matchedCategory ? matchedCategory.id : rawCategory,
+      description: promptDescriptionInput.value.trim(),
+      prompt: promptTextInput.value.trim(),
+      negative_prompt: promptNegativeInput.value.trim(),
+      model: promptModelInput.value.trim(),
+      tags: promptTagsInput.value
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+      image_url: imageUrl || null
+    };
+
+    promptAdminMessage.textContent = "프롬프트를 저장하고 있어요...";
+
     let result;
 
     if (id) {
@@ -640,6 +762,17 @@ adminPromptList.addEventListener("click", async (event) => {
     promptTagsInput.value = Array.isArray(prompt.tags)
       ? prompt.tags.join(", ")
       : "";
+
+    promptImageInput.value = "";
+    promptImageUrlInput.value = prompt.image_url || "";
+
+    if (prompt.image_url) {
+      promptImagePreview.src = prompt.image_url;
+      promptImagePreview.hidden = false;
+    } else {
+      promptImagePreview.removeAttribute("src");
+      promptImagePreview.hidden = true;
+    }
 
     promptSave.textContent = "프롬프트 수정";
     promptAdminMessage.textContent = "수정할 내용을 입력해 주세요.";
