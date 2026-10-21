@@ -653,6 +653,7 @@ promptForm.addEventListener("submit", async (event) => {
 
     // 새 자료 등록 또는 기존 자료 수정
     let result;
+let result;
 
     if (id) {
       result = await db
@@ -660,13 +661,17 @@ promptForm.addEventListener("submit", async (event) => {
         .update(payload)
         .eq("id", id)
         .select("id, image_url");
-        
     } else {
       result = await db
-  .from("prompts")
-  .insert([payload])
-  .select("id, image_url");
-   
+        .from("prompts")
+        .insert([payload])
+        .select("id, image_url");
+    }
+
+    if (result.error) throw result.error;
+
+    if (!result.data || result.data.length === 0) {
+      throw new Error("저장하지 못했어요. 관리자 권한을 확인해 주세요.");
     }
 
     if (result.error) throw result.error;
