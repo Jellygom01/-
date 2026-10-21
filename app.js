@@ -663,19 +663,19 @@ promptForm.addEventListener("submit", async (event) => {
         .single();
     } else {
       result = await db
-        .from("prompts")
-        .insert([payload])
-        .select("id, image_url")
-        .single();
+  .from("prompts")
+  .insert([payload])
+  .select("id, image_url");
+   
     }
 
     if (result.error) throw result.error;
 
     // 저장된 이미지 주소를 다시 확인
-    if (selectedFile && !result.data?.image_url) {
-      throw new Error(
-        "프롬프트는 처리됐지만 이미지 주소가 저장되지 않았어요. Supabase의 image_url 컬럼과 권한을 확인해야 해요."
-      );
+    if (selectedFile && !result.data?.[0]?.image_url) {
+  throw new Error(
+    "프롬프트는 처리됐지만 반환된 이미지 주소를 확인할 수 없어요."
+  );
     }
 
     await loadArchive();
