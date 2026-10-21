@@ -439,3 +439,60 @@ adminLoginForm.addEventListener("submit", async (event) => {
 });
 
 updateAdminButton();
+
+async function refreshAdminPanel() {
+  const adminPanel = document.querySelector("#adminPanel");
+  const { data } = await db.auth.getSession();
+
+  if (!data.session) {
+    adminPanel.hidden = true;
+    return;
+  }
+
+  adminPanel.hidden = false;
+
+  const list = document.querySelector("#adminPromptList");
+  list.textContent = "프롬프트 목록을 불러오는 중...";
+
+  const { data: prompts, error } = await db
+    .from("prompts")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    list.textContent = "목록을 불러오지 못했어요: " + error.message;
+    return;
+  }
+
+  list.replaceChildren();
+
+  if (!prompts || prompts.length === 0) {
+    list.textContent = "등록된 프롬프트가 없어요.";
+    return;
+  }
+
+  prompts.forEach((prompt) => {
+    const item = document.createElement("article");
+    const title = document.createElement("h3");
+    const category = document.createElement("p");
+
+    title.textContent = prompt.title || "제목 없음";
+    category.textContent = "카테고리: " + (prompt.category || "미분류");
+
+    item.append(title, category);
+    list.append(item);
+  });
+}
+
+async function syncAdminPanel() {
+  await refreshAdminPanel();
+}
+
+db.auth.onAuthStateChange(() => {
+  setTimeout(() => {
+    syncAdminPanel();
+    updateAdminButton();
+  }, 0);
+});
+
+refreshAdminPanel();
