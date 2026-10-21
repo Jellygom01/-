@@ -1,4 +1,3 @@
-
 const state = {
   prompts: [],
   categories: [],
@@ -622,12 +621,20 @@ promptForm.addEventListener("submit", async (event) => {
 
   try {
     let imageUrl = promptImageUrlInput.value.trim();
-    const selectedFile = promptImageInput.files[0];
+    const selectedFile = promptImageInput.files?.[0] || null;
+    console.log("선택된 이미지 파일:", selectedFile);
 
-    // 새 이미지를 골랐다면 업로드하고 주소를 받음
+    // 이미지 파일이 선택된 경우 업로드
     if (selectedFile) {
       promptAdminMessage.textContent = "이미지를 업로드하고 있어요...";
       imageUrl = await uploadPromptImage(selectedFile);
+
+      if (!imageUrl) {
+        throw new Error("이미지 주소를 가져오지 못했어요.");
+      }
+
+      promptAdminMessage.textContent =
+        "이미지 업로드 완료! 프롬프트를 저장하고 있어요...";
     }
 
     const payload = {
@@ -644,26 +651,36 @@ promptForm.addEventListener("submit", async (event) => {
       image_url: imageUrl || null
     };
 
-    promptAdminMessage.textContent = "프롬프트를 저장하고 있어요...";
-
+    // 새 자료 등록 또는 기존 자료 수정
     let result;
 
     if (id) {
       result = await db
         .from("prompts")
         .update(payload)
-        .eq("id", id);
+        .eq("id", id)
+        .select("id, image_url")
+        .single();
     } else {
       result = await db
         .from("prompts")
-        .insert([payload]);
+        .insert([payload])
+        .select("id, image_url")
+        .single();
     }
 
     if (result.error) throw result.error;
 
-    resetPromptForm();
+    // 저장된 이미지 주소를 다시 확인
+    if (selectedFile && !result.data?.image_url) {
+      throw new Error(
+        "프롬프트는 처리됐지만 이미지 주소가 저장되지 않았어요. Supabase의 image_url 컬럼과 권한을 확인해야 해요."
+      );
+    }
+
     await loadArchive();
     await refreshAdminPanel();
+    resetPromptForm();
 
     promptAdminMessage.textContent = id
       ? "프롬프트를 수정했어요."
@@ -672,8 +689,10 @@ promptForm.addEventListener("submit", async (event) => {
     showToast(id ? "수정 완료!" : "등록 완료!");
   } catch (error) {
     console.error("프롬프트 저장 오류:", error);
+
     promptAdminMessage.textContent =
-      "저장에 실패했어요: " + (error.message || "오류가 발생했어요.");
+      "저장에 실패했어요: " +
+      (error.message || "오류가 발생했어요.");
   } finally {
     promptSave.disabled = false;
     promptSave.textContent = promptIdInput.value
