@@ -158,3 +158,179 @@ kbd { font: 11px var(--mono); color: #85877d; background: #f7f7f5; border: 1px s
   .detail-modal { padding: 21px; border-radius: 16px; max-height: 92vh; }
   .detail-modal h2 { font-size: 24px; }
 }
+
+/* 관리자 화면 */
+#adminPanel {
+  box-sizing: border-box;
+  width: min(100% - 32px, 900px);
+  margin: 36px auto;
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #e8e5e1;
+  border-radius: 18px;
+  color: #292722;
+  overflow-wrap: anywhere;
+}
+
+#adminPanel[hidden] {
+  display: none !important;
+}
+
+#adminPanel .section-heading {
+  margin-bottom: 12px;
+}
+
+#adminPanel h2 {
+  margin: 6px 0 12px;
+  font-size: 26px;
+  line-height: 1.4;
+}
+
+#adminPanel > p {
+  color: #77736c;
+  line-height: 1.7;
+}
+
+#promptForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 24px 0;
+  padding: 22px;
+  background: #faf9f7;
+  border: 1px solid #ebe8e2;
+  border-radius: 14px;
+}
+
+#promptForm label {
+  margin-top: 8px;
+  color: #49463f;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+#promptForm input,
+#promptForm textarea,
+#promptForm select {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #dedad2;
+  border-radius: 9px;
+  background: #fff;
+  color: #292722;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+#promptForm textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+#promptForm input:focus,
+#promptForm textarea:focus,
+#promptForm select:focus {
+  outline: 2px solid #b7a991;
+  outline-offset: 1px;
+  border-color: #a99b85;
+}
+
+#promptForm button,
+#adminPromptList button {
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid #d9d4cb;
+  border-radius: 9px;
+  background: #fff;
+  color: #39362f;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+#promptForm button[type="submit"] {
+  margin-top: 10px;
+  border-color: #37342e;
+  background: #37342e;
+  color: #fff;
+}
+
+#promptForm button:disabled,
+#adminPromptList button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+#promptAdminMessage {
+  min-height: 1.5em;
+  color: #625849;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+#adminPromptList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+#adminPromptList > p,
+#adminPromptList > article {
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid #e8e5df;
+  border-radius: 12px;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+
+#adminPromptList h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+#adminPromptList p {
+  color: #77736c;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+#adminPromptList button {
+  margin: 6px 8px 0 0;
+}
+
+#adminPromptList button[data-admin-delete] {
+  border-color: #e7cccc;
+  color: #a13f3f;
+}
+
+@media (max-width: 600px) {
+  #adminPanel {
+    width: calc(100% - 20px);
+    margin: 20px auto;
+    padding: 16px;
+    border-radius: 13px;
+  }
+
+  #adminPanel h2 {
+    font-size: 22px;
+  }
+
+  #promptForm {
+    padding: 14px;
+    gap: 9px;
+  }
+
+  #adminPromptList > article {
+    padding: 14px;
+  }
+}
