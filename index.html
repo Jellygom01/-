@@ -102,6 +102,10 @@
       </div>
       <div class="modal-category" id="modalCategory"></div>
       <h2 id="modalTitle"></h2>
+
+      <!-- 등록된 이미지가 있을 때 표시 -->
+      <img id="modalImage" class="modal-image" alt="" hidden>
+
       <p id="modalDescription" class="modal-description"></p>
       <div class="modal-meta" id="modalMeta"></div>
       <div class="prompt-block">
@@ -176,6 +180,24 @@
 
       <label for="promptTags">태그 (쉼표로 구분)</label>
       <input id="promptTags" type="text" placeholder="예: 작가 태그, 눈">
+
+      <!-- 이미지 업로드 입력란 -->
+      <label for="promptImage">결과 이미지</label>
+      <input
+        id="promptImage"
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+      >
+      <input type="hidden" id="promptImageUrl">
+
+      <img
+        id="promptImagePreview"
+        class="admin-image-preview"
+        alt="이미지 미리보기"
+        hidden
+      >
+
+      <p class="image-help">JPG, PNG, WebP, GIF 지원 · 최대 5MB</p>
 
       <button type="submit" id="promptSave">프롬프트 등록</button>
       <button type="button" id="promptCancel">초기화</button>
